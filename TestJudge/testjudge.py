@@ -135,6 +135,7 @@ judge_dict = {
         }
 
 def judge_impl(config_dict, file_path):
+    global info_dict
     response = {'runtimeStatus': 'AC'}
     file_type = file_type_list[config_dict['language']]
     problem = config_dict['probInfo']
@@ -191,6 +192,7 @@ def check_data(data_dir, data_type):
         return False
 
 def beat_impl(config_dict, file_path, cases_num):
+    global info_dict
     response = {'runtimeStatus': ['N/A', 'N/A']}
     problem = config_dict['probInfo']
     data_dir = 'data/%s/' % problem
@@ -221,7 +223,7 @@ def beat_impl(config_dict, file_path, cases_num):
             if status_0 == 0 and status_1 == 0:
                 if not judge_dict[info_dict[problem]['method']](stdout_0, stdout_1, info_dict[problem]['precision']):
                     response['runtimeStatus'] = ['DIFF', 'DIFF']
-                    response['testData'] = stdin
+                    response['testData'] = test_data
                     response['outputs'] = [stdout_0, stdout_1]
                     break
             else:
@@ -233,7 +235,10 @@ def beat_impl(config_dict, file_path, cases_num):
                     response['runtimeStatus'][1] = 'RE'
                 elif status_1 == 2:
                     response['runtimeStatus'][1] = 'TLE'
+                response['testData'] = test_data
                 break
+    else:
+        response['compileInfo'] = compile_messages
 
     if response['runtimeStatus'] == ['N/A', 'N/A']:
         response['runtimeStatus'] = ['IDT', 'IDT']
@@ -267,8 +272,8 @@ def beat(config_dict, cases_num = 20):
     response = {}
     try:
         return beat_impl(config_dict, file_path, cases_num)
-    # except:
-        # return {'runtimeStatus': ['UE', 'UE']}
+    except:
+        return {'runtimeStatus': ['UE', 'UE']}
     finally:
         shutil.rmtree(file_path)
 
